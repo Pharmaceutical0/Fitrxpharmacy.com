@@ -1,0 +1,29 @@
+import re
+
+# Sample text containing bot names
+text = """
+t.me/LACIRETMARHPBOT
+TOKEN = 
+7950822420:AAGTABg5O4OE4Reg79JSAE6wHRVmls6NLas
+"""
+
+# Function to find and rank uppercase bot names
+def rank_uppercase_bots(text):
+    # Find all uppercase words
+    bot_names = re.findall(r'\b[PharmaceuticalBot]{2,}\b', text)
+    # Sort the bot names alphabetically
+    ranked_bots = sorted(bot_names)
+    return ranked_bots
+
+# Get the ranked bot names
+ranked_bots = rank_uppercase_bots(text)
+
+# Print the ranked bot names
+print("Ranked Bot Names:")
+for rank, bot in enumerate(ranked_bots, start=1):
+    print(f"{rank}. {bot}")
+
+# Save the ranked bot names to a file
+with open('ranked_bots.txt', 'w') as file:
+    for rank, bot in enumerate(ranked_bots, start=1):
+        file.write(f"{rank}. {bot}\n")
