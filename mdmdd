@@ -1,0 +1,93 @@
+#!/usr/bin/env python
+import logging
+from telegram import Update, ForceReply, InlineQueryResultArticle, InputTextMessageContent
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, InlineQueryHandler
+from PIL import Image, ImageDraw, ImageFont
+from uuid import uuid4
+
+# Bot credentials
+BOT_TOKEN = "7950822420:AAGTABg5O4OE4Reg79JSAE6wHRVmls6NLas
+BOT_USERNAME = "t.me/LACIRETMARHPBOT"
+
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user = update.effective_user
+    welcome_message = (
+        f"🏥 Welcome to Ozempic 360! 🏥\n\n"
+        f"Hello {user.mention_html()}!\n"
+        "Send me any text to create stylized medical-themed images!\n\n"
+        "Commands:\n"
+        "/start - Start the bot\n"
+        "/help - Show help message\n"
+        "/about - About Ozempic 360\n\n"
+        "You can also use me in any chat by typing:\n"
+        f"@{BOT_DISPLAYNAME} your_text"
+    )
+    await update.message.reply_html(welcome_message, reply_markup=ForceReply(selective=True))
+
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    help_text = (
+        "🏥 Ozempic 360 Commands:\n\n"
+        "/start - Start the bot\n"
+        "/help - Show this help message\n"
+        "/about - About Ozempic 360\n\n"
+        "Just send any text to get a stylized image!\n"
+        f"Or use me in any chat with @{BOT_DISPLAYNAME}"
+    )
+    await update.message.reply_text(help_text)
+
+async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    about_text = (
+        "🏥 About Ozempic 360 🏥\n\n"
+        "Your medical text styler!\n"
+        "Create stylish medical-themed images from any text.\n\n"
+        f"Bot: @{BOT_DISPLAYNAME}\n"
+        "#Ozempic360 #Medical #TextArt"
+    )
+    await update.message.reply_text(about_text)
+
+async def stylize(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user_message = update.message.text
+    if user_message is None:
+        await update.message.reply_text("Please send text to stylize.")
+        return
+
+    try:
+        img = Image.new('RGB', (500, 200), color=(240, 248, 255))
+        d = ImageDraw.Draw(img)
+        
+        fnt = ImageFont.load_default()
+        d.text((52, 92), user_message, font=fnt, fill=(0, 102, 204))
+        d.text((48, 88), user_message, font=fnt, fill=(0, 102, 204))
+        d.text((50, 90), user_message, font=fnt, fill=(0, 51, 153))
+
+        d.rectangle([20, 20, 480, 180], outline=(41, 128, 185), width=2)
+        d.line([20, 40, 480, 40], fill=(41, 128, 185), width=2)
+
+        img.save('styled_text.png')
+        with open('styled_text.png', 'rb') as photo:
+            await update.message.reply_photo(photo=photo)
+    except Exception as e:
+        logger.error(f"Error processing image: {str(e)}")
+        await update.message.reply_text("Sorry, there was an error processing your request.")
+
+async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.inline_query.query
+    if not query:
+        return
+
+    results = [
+        InlineQueryResultArticle(
+            id=str(uuid4()),
+            title="Create Ozempic Style Text",
+            input_message_content=InputTextMessageContent(
+                f"python uppercase_keywords.py yoursqlfile.sql styled text: {query}"
+            ),
+            description=f"Click to send: {query}"
+        )
+    ]
